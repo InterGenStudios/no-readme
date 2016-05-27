@@ -5,7 +5,7 @@
 # Github: https://github.com/InterGenStudios/no-readme
 # ---------------------------------------------------
 # InterGenStudios: 10-17-15
-# Copyright (c) 2015: Christopher 'InterGen' Cork  InterGenStudios
+# Copyright (c) 2015: Christopher 'InterGen' Cork - InterGenStudios
 # URL: https://intergenstudios.com
 # --------------------------------
 # License: GPL-2.0+
@@ -27,27 +27,28 @@
 # Simple regex for number checking
 RE='^[0-9]+$'
 
-# Colors trailing text Red
+# Output red text
 RED="\e[1m\e[31m"
 
-# Colors trailing text Green
+# Output Green text
 GREEN="\e[1m\e[32m"
 
-# Colors trailing text Yellow
+# Output Yellow text
 YELLOW="\e[1m\e[33m"
 
-# Colors trailing text Blue
+# Output Blue text
 BLUE="\e[1m\e[34m"
 
-# Colors trailing text Bold White
+# Output Bold White text
 WHITE="\e[1m\e[37m"
 
-# Removes any previously set colors
+# Remove any previously set text colors
 NOCOLOR="\e[0m"
 
-# Sets no-readme version number
+# no-readme version number
 vers=1.1
 
+# Load's userlist variable
 USERLIST="$(grep \: /etc/trueuserdomains | grep -v nobody | awk '{print $2}' | uniq)"
 export USERLIST
 
@@ -67,27 +68,21 @@ export USERLIST
 # BEGIN - DISPLAY LAYOUT FUNCTIONS #
 #----------------------------------#
 
-# A small simple divider
-SPACER () {
-
-    echo -e "\n${BLUE}----------------------------------\n${NOCOLOR}"
-
+# A simple divider
+SEPARATOR () {
+    echo -e "\n\n${BLUE}------------------------------------------------------------------------------${NOCOLOR}\n\n"
 }
 
-# A large simple divider
-SEPARATOR () {
-
-    echo -e "\n\n${BLUE}------------------------------------------------------------------------------${NOCOLOR}\n\n"
-
+# A simple divider
+SPACER () {
+    echo -e "\n${BLUE}----------------------------------\n${NOCOLOR}"
 }
 
 # Creates uniform look during script execution when called after any clear command
 HEADER () {
-
-    echo -e "\n\n${BLUE}______________________________________________________________________________________________${NOCOLOR}\n"
-    echo -e "${WHITE}    no-readme v${GREEN}${vers}${NOCOLOR}"
-    echo -e "${BLUE}______________________________________________________________________________________________${NOCOLOR}\n\n"
-
+    echo -e "\n\n${BLUE}_________________________________________________________________________________________${NOCOLOR}\n"
+    echo -e "${WHITE}    No-ReadMe v${GREEN}${vers}${NOCOLOR}"
+    echo -e "${BLUE}_________________________________________________________________________________________${NOCOLOR}\n\n"
 }
 
 #--------------------------------#
@@ -95,7 +90,6 @@ HEADER () {
 #--------------------------------#
 
 CHECK_FOR_ROOT () {
-
     if [ "$(id -u)" != "0" ]; then
 
     echo -e "\n\n    ${RED}${BLINK}--------${NOCOLOR}"
@@ -106,11 +100,9 @@ CHECK_FOR_ROOT () {
     exit 1
 
     fi
-
 }
 
 BLOCK_SINGLE_USER () {
-
     clear
     HEADER
     find /home/"$user" -type f -iname "readme.*" -o -iname "license.*" >> filelist
@@ -130,11 +122,9 @@ BLOCK_SINGLE_USER () {
         rm filelist
 
     fi
-
 }
 
 BLOCK_ALL_USERS () {
-
     clear
     HEADER
     for user in ${USERLIST[@]}; do
@@ -161,11 +151,9 @@ BLOCK_ALL_USERS () {
 
     done
     echo -e "\n\n  All ${WHITE}README.*${NOCOLOR} and ${WHITE}LICENSE.*${NOCOLOR} files have been blocked\n\n  ${GREEN}Run complete${NOCOLOR}\n\n"
-
 }
 
 UNBLOCK_SINGLE_USER () {
-
     clear
     HEADER
     find /home/"$user" -type f -iname "readme.*" -o -iname "license.*" >> filelist
@@ -185,11 +173,9 @@ UNBLOCK_SINGLE_USER () {
         rm filelist
 
     fi
-
 }
 
 UNBLOCK_ALL_USERS () {
-
     clear
     HEADER
     for user in ${USERLIST[@]}; do
@@ -216,7 +202,6 @@ UNBLOCK_ALL_USERS () {
 
     done
     echo -e "\n\n  All ${WHITE}README.*${NOCOLOR} and ${WHITE}LICENSE.*${NOCOLOR} files have been unblocked\n\n  ${GREEN}Run complete${NOCOLOR}\n\n"
-
 }
 
 ROUTE () {
@@ -298,7 +283,22 @@ ROUTE () {
            ;;
 
     esac
+}
 
+HELPTEXT () {
+    clear
+    HEADER
+    echo -e "\n  ${WHITE}No-ReadMe ${GREEN}HELP${NOCOLOR}:"
+    echo -e "  ${GREEN}---------------${NOCOLOR}\n"
+    echo -e "  Nulls/resets permissions on all ${WHITE}readme.${GREEN}* ${NOCOLOR}and ${WHITE}license.${GREEN}* ${NOCOLOR}files\n"
+    echo -e "  ${GREEN}---------------${NOCOLOR}\n"
+    echo -e "  ${WHITE}USAGE: ${NOCOLOR}no-readme ${WHITE}[${NOCOLOR}options${WHITE}]${NOCOLOR}\n"
+    echo -e "  ${WHITE}Options:${NOCOLOR}\n"
+    echo -e "  ${GREEN}-b${NOCOLOR}: Block all ${WHITE}readme.${GREEN}* ${NOCOLOR}and ${WHITE}license.${GREEN}*${NOCOLOR} user files on server ${WHITE}(${YELLOW}NO TERMINAL OUTPUT${WHITE})${NOCOLOR}"
+    echo -e "  ${GREEN}-u${NOCOLOR}: Restore all ${WHITE}readme.${GREEN}* ${NOCOLOR}and ${WHITE}license.${GREEN}*${NOCOLOR} user files on server ${WHITE}(${YELLOW}NO TERMINAL OUTPUT${WHITE})${NOCOLOR}"
+    echo -e "  ${GREEN}-h${NOCOLOR}: Display this helptext and exit"
+    echo -e "  ${GREEN}-m${NOCOLOR}: Menu driven operation\n\n"
+    exit 0
 }
 
 ############################
@@ -313,9 +313,21 @@ ROUTE () {
 ##---------------------##
 #########################
 
+# Create userlist file for use in subshells
 CHECK_FOR_ROOT
 grep \: /etc/trueuserdomains | grep -v nobody | awk '{print $2}' | uniq > userlist
-ROUTE
+# Cli usage options
+case $1 in
+    -b) BLOCK_ALL_USERS > /dev/null 2>&1
+        ;;
+    -u) UNBLOCK_ALL_USERS > /dev/null 2>&1
+        ;;
+    -m) ROUTE
+        ;;
+     *) HELPTEXT
+        ;;
+esac
+# cleanup
 rm userlist
 
 #######################
